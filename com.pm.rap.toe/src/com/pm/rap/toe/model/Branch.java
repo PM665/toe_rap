@@ -1,21 +1,39 @@
 package com.pm.rap.toe.model;
 
-public class Connection {
+import java.util.Collection;
+import java.util.LinkedList;
 
-	private final BaseElement from;
-	private final BaseElement to;
+public class Branch {
 
-	public Connection(BaseElement from, BaseElement to) {
+	private final Node from;
+	private final Node to;
+
+	private final Collection<BaseElement> elements;
+
+	public Branch(Node from, Node to) {
 		super();
 		this.from = from;
 		this.to = to;
+		this.elements = new LinkedList<BaseElement>();
 	}
 
-	public BaseElement getFrom() {
+	public boolean addElement(BaseElement e) {
+		return elements.add(e);
+	}
+
+	public boolean removeElement(BaseElement o) {
+		return elements.remove(o);
+	}
+
+	public Collection<BaseElement> getElements() {
+		return elements;
+	}
+
+	public Node getFrom() {
 		return from;
 	}
 
-	public BaseElement getTo() {
+	public Node getTo() {
 		return to;
 	}
 
@@ -36,7 +54,7 @@ public class Connection {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		Connection other = (Connection) obj;
+		Branch other = (Branch) obj;
 		if (from == null) {
 			if (other.from != null)
 				return false;
