@@ -44,6 +44,16 @@ public class ChainModel {
 		return true;
 	}
 
+	public Collection<Branch> getNodeForBranch(Node n) {
+		ArrayList<Branch> list = new ArrayList<Branch>();
+		for (Branch b : branches) {
+			if (b.getFrom().equals(n) || b.getTo().equals(n)) {
+				list.add(b);
+			}
+		}
+		return list;
+	}
+
 	private Branch checkConnected(Branch b) {
 		while (branches.contains(b)) {
 			b.setId(b.getId() + 1);

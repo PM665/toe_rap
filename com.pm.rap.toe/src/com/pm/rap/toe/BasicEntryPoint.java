@@ -71,8 +71,8 @@ public class BasicEntryPoint extends AbstractEntryPoint {
 //				model.addBranch(new Branch(n1, n3));
 
 				CurcuitsFinder finder = new CurcuitsFinder(model);
-				Collection<Curcuit> findCurcuits = finder.findCurcuits();
-				System.out.println(findCurcuits);
+				Collection<Curcuit> ñurcuits = finder.findAllCurcuits();
+				System.out.println(ñurcuits);
 			}
 
 		});
