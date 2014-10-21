@@ -175,7 +175,6 @@ public class Curcuit {
 			sb.append(' ');
 			sb.append(n.toString());
 		}
-		sb.append('\n');
 		return sb.toString();
 	}
 

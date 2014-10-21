@@ -2,8 +2,11 @@ package com.pm.rap.toe.mkt;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import com.pm.rap.toe.model.Branch;
 import com.pm.rap.toe.model.ChainModel;
@@ -23,76 +26,70 @@ public class CurcuitsFinder {
 		return model;
 	}
 
-	public Collection<Curcuit> findCurcuits() {
-		Collection<Curcuit> rest = findAllCurcuits();
-		ArrayList<Curcuit> result = new ArrayList<Curcuit>();
+	public Collection<Collection<Curcuit>> findCurcuits() {
+		Collection<Curcuit> all = findAllCurcuits();
+		Set<Collection<Curcuit>> result = new HashSet<Collection<Curcuit>>();
+		int cCount = model.getBranches().size() - (model.getNodes().size() - 1);
 
-		boolean resultComplete = false;
-
-		while (!resultComplete) {
-			// XXX
-			int minCnt = Integer.MAX_VALUE;
-			Curcuit minCurcuit = null;
-			for (Curcuit c : rest) {
-				int count = c.getBranchCount();
-				if (count < minCnt) {
-					minCnt = count;
-					minCurcuit = c;
-				}
-			}
-			if (minCurcuit != null) {
-				result.add(minCurcuit);
-				rest.remove(minCurcuit);
-				resultComplete = processRest(rest, result);
-			}
-			// XXX
-		}
+		getAllCurcuitSets(all.toArray(new Curcuit[0]), 0, cCount, null, result);
+		postProcessResult(result);
 		return result;
 	}
 
-	private boolean processRest(Collection<Curcuit> rest,
-			ArrayList<Curcuit> result) {
-		Map<Node, IntObject> nodesUsed = new HashMap<Node, IntObject>();
-		Map<Branch, IntObject> branchesUsed = new HashMap<Branch, IntObject>();
-		for (Branch b : model.getBranches()) {
-			IntObject count = new IntObject();
-			branchesUsed.put(b, count);
-			for (Curcuit c : result) {
-				if (c.getBranches().contains(b)) {
-					count.inc();
-				}
-			}
-		}
-		for (Node n : model.getNodes()) {
-			IntObject count = new IntObject();
-			nodesUsed.put(n, count);
-			for (Curcuit c : result) {
-				if (c.containsNode(n)) {
-					count.inc();
-				}
-			}
-		}
-		boolean ok = true;
-		for (Node n : nodesUsed.keySet()) {
-			int count = nodesUsed.get(n).get();
-			Collection<Branch> branches = model.getNodeForBranch(n);
-			boolean bIsOk = branches.size() == count;
-			ok &= bIsOk;
-			if (bIsOk) {
-				for (Branch b : branches) {
-					for (Curcuit c : rest.toArray(new Curcuit[0])) {
-						if (c.containsBranch(b)) {
-							rest.remove(c);
-						}
+	private void postProcessResult(Set<Collection<Curcuit>> result) {
+		HashSet<Collection<Curcuit>> copy = new HashSet<Collection<Curcuit>>(
+				result);
+		for (Collection<Curcuit> set : copy) {
+			Map<Branch, IntObject> branches = new HashMap<Branch, IntObject>();
+			for (Curcuit c : set) {
+				for (Branch b : c.getBranches()) {
+					IntObject count = branches.get(b);
+					if (count == null) {
+						count = new IntObject();
+						branches.put(b, count);
 					}
+					count.inc();
+				}
+			}
+			for (Branch b : branches.keySet()) {
+				int count = branches.get(b).get();
+				if (count >= 3) {
+					result.remove(set);
+					break;
 				}
 			}
 		}
-		for (Branch b : branchesUsed.keySet()) {
-			int count = branchesUsed.get(b).get();
-			ok &= count == 1 || count == 2;
+		if (result.isEmpty()) {
+			result.addAll(copy);
 		}
-		return ok;
+	}
+
+	private void getAllCurcuitSets(Curcuit[] array, int index, int count,
+			Set<Curcuit> srcSet, Set<Collection<Curcuit>> result) {
+		if (count == 0) {
+			if (setIsOk(srcSet)) {
+				result.add(srcSet);
+			}
+			return;
+		}
+		for (int i = index; i < array.length - count; i++) {
+			Set<Curcuit> set = new HashSet<Curcuit>();
+			if (srcSet != null) {
+				set.addAll(srcSet);
+			}
+			set.add(array[i]);
+			getAllCurcuitSets(array, i + 1, count - 1, set, result);
+		}
+	}
+
+	private boolean setIsOk(Set<Curcuit> set) {
+		Collection<Branch> branches = new ArrayList<Branch>(model.getBranches());
+		for (Curcuit c : set) {
+			for (Branch b : c.getBranches()) {
+				branches.remove(b);
+			}
+		}
+		return branches.isEmpty();
 	}
 
 	public Collection<Curcuit> findAllCurcuits() {
@@ -103,6 +100,14 @@ public class CurcuitsFinder {
 			stepBranches(b.getFrom(), c, curcuits);
 			stepBranches(b.getTo(), c, curcuits);
 		}
+		curcuits.sort(new Comparator<Curcuit>() {
+
+			@Override
+			public int compare(Curcuit o1, Curcuit o2) {
+				int a = o1.getBranchCount() - o2.getBranchCount();
+				return a != 0 ? a / Math.abs(a) : a;
+			}
+		});
 		return curcuits;
 	}
 
