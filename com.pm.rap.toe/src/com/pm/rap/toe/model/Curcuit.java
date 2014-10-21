@@ -11,6 +11,9 @@ public class Curcuit {
 	private Node first = null;
 	private Node last = null;
 
+	private int id;
+	private double i;
+
 	public Curcuit(ChainModel model) {
 		branches = new LinkedList<Branch>();
 		this.model = model;
@@ -23,6 +26,22 @@ public class Curcuit {
 			this.first = curcuit.first;
 			this.last = curcuit.last;
 		}
+	}
+
+	public int getId() {
+		return id;
+	}
+
+	public void setId(int id) {
+		this.id = id;
+	}
+
+	public Node getFirst() {
+		return first;
+	}
+
+	public Node getLast() {
+		return last;
 	}
 
 	public Collection<Branch> getBranches() {
@@ -120,6 +139,13 @@ public class Curcuit {
 				}
 			}
 		}
+		for (Branch b : model.getBranches()) {
+			boolean ok = false;
+			if (!containsBranch(b)) {
+				ok = true;
+				allOk = true;
+			}
+		}
 		return !allOk;
 	}
 
@@ -178,4 +204,63 @@ public class Curcuit {
 		return sb.toString();
 	}
 
+	public double getR() {
+		double r = 0;
+		for (Branch b : branches) {
+			r += b.getR();
+		}
+		return r;
+	}
+
+	public double getI() {
+		return i;
+	}
+
+	public void setI(double i) {
+		this.i = i;
+	}
+
+	public static double getMutualR(Curcuit src, Curcuit rel) {
+		double r = 0;
+		for (Branch b : src.getBranches()) {
+			if (rel.containsBranch(b)) {
+				Node srcB = src.getFromForBranch(b);
+				Node relB = rel.getFromForBranch(b);
+				if (srcB != null) {
+					boolean minus = !srcB.equals(relB);
+					r += (minus ? -1 : 1) * b.getR();
+				}
+			}
+		}
+		return r;
+	}
+
+	public Node getFromForBranch(Branch b) {
+		if (!containsBranch(b)) {
+			return null;
+		}
+		Iterator<Branch> itr = branches.iterator();
+		Node result = first;
+		while (itr.hasNext()) {
+			Branch next = itr.next();
+			if (next.equals(b)) {
+				break;
+			}
+			result = next.getFrom().equals(result) ? next.getTo() : next
+					.getFrom();
+		}
+		return result;
+	}
+
+	public boolean isStraightBranch(Branch b) {
+		return b.getFrom().equals(getFromForBranch(b));
+	}
+
+	public Curcuit switchDirection() {
+		Curcuit res = new Curcuit(model);
+		for (int i = branches.size() - 1; i >= 0; i--) {
+			res.addBranch(branches.get(i));
+		}
+		return res;
+	}
 }

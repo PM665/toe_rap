@@ -2,8 +2,8 @@ package com.pm.rap.toe.model;
 
 public class Resistance extends BaseElement {
 
-	public Resistance() {
-		// TODO Auto-generated constructor stub
+	public Resistance(Branch branch) {
+		super(branch);
 	}
 
 }

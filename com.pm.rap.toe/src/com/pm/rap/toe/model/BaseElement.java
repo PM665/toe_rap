@@ -2,12 +2,15 @@ package com.pm.rap.toe.model;
 
 public abstract class BaseElement {
 
-	private double u;
-	private double i;
-	private double r;
-	
-	public BaseElement() {
-		// TODO Auto-generated constructor stub
+	private double u = 0;
+	private double i = 0;
+	private double r = 0;
+
+	private final Branch parent;
+
+	public BaseElement(Branch branch) {
+		this.parent = branch;
+		parent.addElement(this);
 	}
 
 	public double getU() {
@@ -32,6 +35,10 @@ public abstract class BaseElement {
 
 	public void setR(double r) {
 		this.r = r;
+	}
+
+	public Branch getParent() {
+		return parent;
 	}
 
 }

@@ -9,6 +9,8 @@ public class Branch {
 	private Node from;
 	private Node to;
 
+	private double i;
+
 	private final Collection<BaseElement> elements;
 
 	public Branch(Node from, Node to) {
@@ -44,6 +46,14 @@ public class Branch {
 
 	public void setId(int id) {
 		this.id = id;
+	}
+
+	public double getI() {
+		return i;
+	}
+
+	public void setI(double i) {
+		this.i = i;
 	}
 
 	public void switchSides() {
@@ -102,4 +112,19 @@ public class Branch {
 				+ (id == 1 ? "" : "(" + id + ")");
 	}
 
+	public double getR() {
+		double r = 0;
+		for (BaseElement e : elements) {
+			r += e.getR();
+		}
+		return r;
+	}
+
+	public double getU() {
+		double u = 0;
+		for (BaseElement e : elements) {
+			u += e.getU();
+		}
+		return u;
+	}
 }

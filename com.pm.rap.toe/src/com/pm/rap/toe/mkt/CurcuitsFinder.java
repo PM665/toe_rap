@@ -72,7 +72,7 @@ public class CurcuitsFinder {
 			}
 			return;
 		}
-		for (int i = index; i < array.length - count; i++) {
+		for (int i = index; i < array.length; i++) {
 			Set<Curcuit> set = new HashSet<Curcuit>();
 			if (srcSet != null) {
 				set.addAll(srcSet);
@@ -92,7 +92,7 @@ public class CurcuitsFinder {
 		return branches.isEmpty();
 	}
 
-	public Collection<Curcuit> findAllCurcuits() {
+	private Collection<Curcuit> findAllCurcuits() {
 		ArrayList<Curcuit> curcuits = new ArrayList<Curcuit>();
 		for (Branch b : model.getBranches()) {
 			Curcuit c = new Curcuit(model);
