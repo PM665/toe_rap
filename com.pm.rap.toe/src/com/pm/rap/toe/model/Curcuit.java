@@ -140,9 +140,7 @@ public class Curcuit {
 			}
 		}
 		for (Branch b : model.getBranches()) {
-			boolean ok = false;
 			if (!containsBranch(b)) {
-				ok = true;
 				allOk = true;
 			}
 		}
