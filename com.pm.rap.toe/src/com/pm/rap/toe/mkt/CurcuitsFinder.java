@@ -8,9 +8,11 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import com.pm.rap.toe.model.BaseElement;
 import com.pm.rap.toe.model.Branch;
 import com.pm.rap.toe.model.ChainModel;
 import com.pm.rap.toe.model.Curcuit;
+import com.pm.rap.toe.model.CurrentSource;
 import com.pm.rap.toe.model.Node;
 import com.pm.rap.toe.util.IntObject;
 
@@ -39,10 +41,23 @@ public class CurcuitsFinder {
 	private void postProcessResult(Set<Collection<Curcuit>> result) {
 		HashSet<Collection<Curcuit>> copy = new HashSet<Collection<Curcuit>>(
 				result);
+		Map<Branch, IntObject> currents = new HashMap<Branch, IntObject>();
+		for (Branch b : model.getBranches()) {
+			for (BaseElement e : b.getElements()) {
+				if (e instanceof CurrentSource) {
+					currents.put(b, new IntObject());
+					break;
+				}
+			}
+		}
 		for (Collection<Curcuit> set : copy) {
 			Map<Branch, IntObject> branches = new HashMap<Branch, IntObject>();
 			for (Curcuit c : set) {
 				for (Branch b : c.getBranches()) {
+					IntObject curCnt = currents.get(b);
+					if (curCnt != null) {
+						curCnt.inc();
+					}
 					IntObject count = branches.get(b);
 					if (count == null) {
 						count = new IntObject();
@@ -57,6 +72,16 @@ public class CurcuitsFinder {
 					result.remove(set);
 					break;
 				}
+			}
+			boolean fail = false;
+			for (IntObject o : currents.values()) {
+				if (o.get() > 1) {
+					fail = true;
+				}
+				o.set(0);
+			}
+			if (fail) {
+				result.remove(set);
 			}
 		}
 		if (result.isEmpty()) {

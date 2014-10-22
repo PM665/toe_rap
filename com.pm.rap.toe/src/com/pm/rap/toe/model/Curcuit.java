@@ -235,6 +235,15 @@ public class Curcuit {
 		}
 		return r;
 	}
+	
+	public static int isSameDirectionOnCOmmonBranch(Curcuit c1, Curcuit c2){
+		for (Branch b : c1.getBranches()) {
+			if (c2.containsBranch(b)) {
+				return c2.isStraightBranch(b) && c1.isStraightBranch(b) ? 1 : -1;
+			}
+		}
+		return 0;
+	}
 
 	public Node getFromForBranch(Branch b) {
 		if (!containsBranch(b)) {

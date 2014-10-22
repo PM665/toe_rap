@@ -1,4 +1,4 @@
-package com.pm.rap.toe.gauss;
+package com.pm.rap.toe.util.gauss;
 
 import java.util.Arrays;
 

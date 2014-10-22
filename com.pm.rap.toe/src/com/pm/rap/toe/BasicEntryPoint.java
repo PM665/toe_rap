@@ -10,7 +10,6 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 
-import com.pm.rap.toe.gauss.GaussSolver;
 import com.pm.rap.toe.mkt.CurcuitsFinder;
 import com.pm.rap.toe.mkt.CurrentFinder;
 import com.pm.rap.toe.model.Branch;
@@ -19,6 +18,7 @@ import com.pm.rap.toe.model.Curcuit;
 import com.pm.rap.toe.model.Node;
 import com.pm.rap.toe.model.Resistance;
 import com.pm.rap.toe.model.VoltageSource;
+import com.pm.rap.toe.util.gauss.GaussSolver;
 
 public class BasicEntryPoint extends AbstractEntryPoint {
 
