@@ -6,11 +6,18 @@ public abstract class BaseElement {
 	private double i = 0;
 	private double r = 0;
 
-	private final Branch parent;
+	private Branch parent;
 
 	public BaseElement(Branch branch) {
 		this.parent = branch;
 		parent.addElement(this);
+	}
+
+	protected BaseElement(BaseElement e, Branch branch) {
+		this(branch);
+		this.u = e.u;
+		this.i = e.i;
+		this.r = e.r;
 	}
 
 	public double getU() {
@@ -40,5 +47,7 @@ public abstract class BaseElement {
 	public Branch getParent() {
 		return parent;
 	}
+	
+	public abstract BaseElement clone(Branch newParent);
 
 }

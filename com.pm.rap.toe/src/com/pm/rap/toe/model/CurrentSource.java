@@ -6,4 +6,12 @@ public class CurrentSource extends BaseElement {
 		super(branch);
 	}
 
+	protected CurrentSource(CurrentSource e, Branch branch) {
+		super(e, branch);
+	}
+
+	public CurrentSource clone(Branch newParent) {
+		return new CurrentSource(this, newParent);
+	}
+
 }

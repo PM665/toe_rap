@@ -2,6 +2,7 @@ package com.pm.rap.toe.mkt;
 
 import java.util.Collection;
 
+import com.pm.rap.toe.model.BaseElement;
 import com.pm.rap.toe.model.Branch;
 import com.pm.rap.toe.model.ChainModel;
 import com.pm.rap.toe.model.Curcuit;
@@ -20,7 +21,7 @@ public class CurrentFinder {
 		return model;
 	}
 
-	public void solve(Collection<Curcuit> curcuits) {
+	public ChainModel solve(Collection<Curcuit> curcuits) {
 
 		System.out.println(curcuits);
 		int count = curcuits.size();
@@ -61,18 +62,39 @@ public class CurrentFinder {
 				matrix[i][i] = 0;
 			}
 		}
-		for (double[] dd : matrix) {
-			for (double d : dd) {
-				System.out.print(d + "\t");
-			}
-			System.out.println();
-		}
 		double[] result = GaussSolver.solve(matrix);
-		for (double d : result) {
-			System.out.print(d + " ");
+		for (int i = 0; i < count; i++) {
+			array[i].setI(result[i]);
 		}
-		System.out.println();
-		System.out.println();
+		ChainModel newModel = new ChainModel();
+		newModel.getNodes().addAll(model.getNodes());
+		for (Branch b : model.getBranches()) {
+			Branch nb = newModel.addBranch(new Branch(b.getFrom(), b.getTo()));
+			double nI = 0;
+			for (int i = 0; i < count; i++) {
+				nI += (array[i].isStraightBranch(b) ? 1 : -1) * result[i];
+			}
+			nb.setI(nI);
+			nb.setId(nb.getId());
+			//XXX
+			for (BaseElement e : b.getElements()){
+				e.clone(nb);
+			}
+		}
+		return newModel;
+
+		// for (double[] dd : matrix) {
+		// for (double d : dd) {
+		// System.out.print(d + "\t");
+		// }
+		// System.out.println();
+		// }
+		// for (double d : result) {
+		// System.out.print(d + " ");
+		// }
+		// System.out.println();
+		// System.out.println();
+
 	}
 
 }
