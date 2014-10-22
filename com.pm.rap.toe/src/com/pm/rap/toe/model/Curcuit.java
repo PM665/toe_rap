@@ -48,7 +48,7 @@ public class Curcuit {
 		return branches;
 	}
 
-	public boolean addBranch(Branch b) {
+	public void addBranch(Branch b) {
 		if (!branches.isEmpty()) {
 			Branch lb = branches.getLast();
 			Node[] connection = getConnectionNodes(lb, b);
@@ -69,7 +69,7 @@ public class Curcuit {
 				}
 			}
 		}
-		return branches.add(b);
+		branches.add(b);
 	}
 
 	private Node[] getConnectionNodes(Branch b1, Branch b2) {
@@ -211,11 +211,14 @@ public class Curcuit {
 	}
 
 	public double getI() {
+		internalFindCurrentSource();
 		return i;
 	}
 
 	public void setI(double i) {
-		this.i = i;
+		if (!hasCurrentSource()) {
+			this.i = i;
+		}
 	}
 
 	public static double getMutualR(Curcuit src, Curcuit rel) {
@@ -260,5 +263,21 @@ public class Curcuit {
 			res.addBranch(branches.get(i));
 		}
 		return res;
+	}
+
+	private boolean internalFindCurrentSource() {
+		for (Branch b : branches) {
+			for (BaseElement e : b.getElements()) {
+				if (e instanceof CurrentSource) {
+					i = e.getI();
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
+	public boolean hasCurrentSource() {
+		return internalFindCurrentSource();
 	}
 }
