@@ -24,8 +24,23 @@ public class CurcuitsFinder {
 		this.model = model;
 	}
 
-	public ChainModel getModel() {
-		return model;
+	private Collection<Curcuit> findAllCurcuits() {
+		ArrayList<Curcuit> curcuits = new ArrayList<Curcuit>();
+		for (Branch b : model.getBranches()) {
+			Curcuit c = new Curcuit(model);
+			c.addBranch(b);
+			stepBranches(b.getFrom(), c, curcuits);
+			stepBranches(b.getTo(), c, curcuits);
+		}
+		curcuits.sort(new Comparator<Curcuit>() {
+
+			@Override
+			public int compare(Curcuit o1, Curcuit o2) {
+				int a = o1.getBranchCount() - o2.getBranchCount();
+				return a != 0 ? a / Math.abs(a) : a;
+			}
+		});
+		return curcuits;
 	}
 
 	public Collection<Collection<Curcuit>> findCurcuits() {
@@ -36,6 +51,28 @@ public class CurcuitsFinder {
 		getAllCurcuitSets(all.toArray(new Curcuit[0]), 0, cCount, null, result);
 		postProcessResult(result);
 		return result;
+	}
+
+	private void getAllCurcuitSets(Curcuit[] array, int index, int count,
+			Set<Curcuit> srcSet, Set<Collection<Curcuit>> result) {
+		if (count == 0) {
+			if (setIsOk(srcSet)) {
+				result.add(srcSet);
+			}
+			return;
+		}
+		for (int i = index; i < array.length; i++) {
+			Set<Curcuit> set = new HashSet<Curcuit>();
+			if (srcSet != null) {
+				set.addAll(srcSet);
+			}
+			set.add(array[i]);
+			getAllCurcuitSets(array, i + 1, count - 1, set, result);
+		}
+	}
+
+	public ChainModel getModel() {
+		return model;
 	}
 
 	private void postProcessResult(Set<Collection<Curcuit>> result) {
@@ -89,24 +126,6 @@ public class CurcuitsFinder {
 		}
 	}
 
-	private void getAllCurcuitSets(Curcuit[] array, int index, int count,
-			Set<Curcuit> srcSet, Set<Collection<Curcuit>> result) {
-		if (count == 0) {
-			if (setIsOk(srcSet)) {
-				result.add(srcSet);
-			}
-			return;
-		}
-		for (int i = index; i < array.length; i++) {
-			Set<Curcuit> set = new HashSet<Curcuit>();
-			if (srcSet != null) {
-				set.addAll(srcSet);
-			}
-			set.add(array[i]);
-			getAllCurcuitSets(array, i + 1, count - 1, set, result);
-		}
-	}
-
 	private boolean setIsOk(Set<Curcuit> set) {
 		Collection<Branch> branches = new ArrayList<Branch>(model.getBranches());
 		for (Curcuit c : set) {
@@ -115,25 +134,6 @@ public class CurcuitsFinder {
 			}
 		}
 		return branches.isEmpty();
-	}
-
-	private Collection<Curcuit> findAllCurcuits() {
-		ArrayList<Curcuit> curcuits = new ArrayList<Curcuit>();
-		for (Branch b : model.getBranches()) {
-			Curcuit c = new Curcuit(model);
-			c.addBranch(b);
-			stepBranches(b.getFrom(), c, curcuits);
-			stepBranches(b.getTo(), c, curcuits);
-		}
-		curcuits.sort(new Comparator<Curcuit>() {
-
-			@Override
-			public int compare(Curcuit o1, Curcuit o2) {
-				int a = o1.getBranchCount() - o2.getBranchCount();
-				return a != 0 ? a / Math.abs(a) : a;
-			}
-		});
-		return curcuits;
 	}
 
 	private void stepBranches(Node node, Curcuit src,

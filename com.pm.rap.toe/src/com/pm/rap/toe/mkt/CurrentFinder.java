@@ -2,7 +2,6 @@ package com.pm.rap.toe.mkt;
 
 import java.util.Collection;
 
-import com.pm.rap.toe.model.BaseElement;
 import com.pm.rap.toe.model.Branch;
 import com.pm.rap.toe.model.ChainModel;
 import com.pm.rap.toe.model.Curcuit;
@@ -15,11 +14,11 @@ public class CurrentFinder {
 	public CurrentFinder(ChainModel model) {
 		super();
 		this.model = model;
+		model.clearSolutions();
 	}
 
-	public ChainModel solve(Collection<Curcuit> curcuits) {
+	public MktSolution solve(Collection<Curcuit> curcuits) {
 
-		System.out.println(curcuits);
 		int count = curcuits.size();
 
 		double[][] matrix = new double[count][count + 1];
@@ -59,38 +58,7 @@ public class CurrentFinder {
 			}
 		}
 		double[] result = GaussSolver.solve(matrix);
-		for (int i = 0; i < count; i++) {
-			array[i].setI(result[i]);
-		}
-		ChainModel newModel = new ChainModel();
-		newModel.getNodes().addAll(model.getNodes());
-		newModel.setCurcuitSet(curcuits);
-		for (Branch b : model.getBranches()) {
-			Branch nb = newModel.addBranch(new Branch(b.getFrom(), b.getTo()));
-			double nI = 0;
-			for (int i = 0; i < count; i++) {
-				nI += (array[i].isStraightBranch(b) ? 1 : -1) * result[i];
-			}
-			nb.setI(nI);
-			nb.setId(nb.getId());
-			for (BaseElement e : b.getElements()){
-				e.clone(nb);
-			}
-		}
-		return newModel;
-
-		// for (double[] dd : matrix) {
-		// for (double d : dd) {
-		// System.out.print(d + "\t");
-		// }
-		// System.out.println();
-		// }
-		// for (double d : result) {
-		// System.out.print(d + " ");
-		// }
-		// System.out.println();
-		// System.out.println();
-
+		return new MktSolution(model, array, result);
 	}
 
 }

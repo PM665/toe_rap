@@ -15,8 +15,8 @@ public class MktSolver {
 		this.model = model;
 	}
 
-	public Collection<ChainModel> getSolution() {
-		ArrayList<ChainModel> result = new ArrayList<ChainModel>();
+	public Collection<MktSolution> getSolution() {
+		ArrayList<MktSolution> result = new ArrayList<MktSolution>();
 		CurcuitsFinder finder = new CurcuitsFinder(model);
 		Collection<Collection<Curcuit>> curcuits = finder.findCurcuits();
 

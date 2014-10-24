@@ -5,10 +5,12 @@ import org.osgi.framework.BundleContext;
 
 public class TOEPlugin implements BundleActivator {
 
-    public void start(BundleContext context) throws Exception {
-    }
+	@Override
+	public void start(BundleContext context) throws Exception {
+	}
 
-    public void stop(BundleContext context) throws Exception {
-    }
+	@Override
+	public void stop(BundleContext context) throws Exception {
+	}
 
 }

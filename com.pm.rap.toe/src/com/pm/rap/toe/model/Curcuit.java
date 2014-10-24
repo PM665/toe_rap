@@ -6,12 +6,39 @@ import java.util.LinkedList;
 
 public class Curcuit {
 
+	public static double getMutualR(Curcuit src, Curcuit rel) {
+		double r = 0;
+		for (Branch b : src.getBranches()) {
+			if (rel.containsBranch(b)) {
+				Node srcB = src.getFromForBranch(b);
+				Node relB = rel.getFromForBranch(b);
+				if (srcB != null) {
+					boolean minus = !srcB.equals(relB);
+					r += (minus ? -1 : 1) * b.getR();
+				}
+			}
+		}
+		return r;
+	}
+
+	public static int isSameDirectionOnCOmmonBranch(Curcuit c1, Curcuit c2) {
+		for (Branch b : c1.getBranches()) {
+			if (c2.containsBranch(b)) {
+				return c2.isStraightBranch(b) && c1.isStraightBranch(b) ? 1
+						: -1;
+			}
+		}
+		return 0;
+	}
+
 	private final ChainModel model;
 	private final LinkedList<Branch> branches;
+
 	private Node first = null;
 	private Node last = null;
 
 	private int id;
+
 	private double i;
 
 	public Curcuit(ChainModel model) {
@@ -22,30 +49,10 @@ public class Curcuit {
 	public Curcuit(Curcuit curcuit) {
 		this(curcuit.model);
 		if (curcuit != null) {
-			this.branches.addAll(curcuit.branches);
-			this.first = curcuit.first;
-			this.last = curcuit.last;
+			branches.addAll(curcuit.branches);
+			first = curcuit.first;
+			last = curcuit.last;
 		}
-	}
-
-	public int getId() {
-		return id;
-	}
-
-	public void setId(int id) {
-		this.id = id;
-	}
-
-	public Node getFirst() {
-		return first;
-	}
-
-	public Node getLast() {
-		return last;
-	}
-
-	public Collection<Branch> getBranches() {
-		return branches;
 	}
 
 	public void addBranch(Branch b) {
@@ -70,6 +77,60 @@ public class Curcuit {
 			}
 		}
 		branches.add(b);
+	}
+
+	public boolean containsBranch(Branch b) {
+		return branches.contains(b);
+	}
+
+	public boolean containsNode(Node n) {
+		if (n.equals(first)) {
+			return false;
+		}
+		if (n.equals(last)) {
+			return false;
+		}
+		if (branches.size() == 1) {
+			return false;
+		}
+		for (Branch b : branches) {
+			if (b.getFrom().equals(n) || b.getTo().equals(n)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null) {
+			return false;
+		}
+		if (getClass() != obj.getClass()) {
+			return false;
+		}
+		Curcuit other = (Curcuit) obj;
+		if (branches == null) {
+			if (other.branches != null) {
+				return false;
+			}
+		} else if (!branches.containsAll(other.branches)) {
+			return false;
+		} else if (!other.branches.containsAll(branches)) {
+			return false;
+		}
+		return true;
+	}
+
+	public int getBranchCount() {
+		return branches.size();
+	}
+
+	public Collection<Branch> getBranches() {
+		return branches;
 	}
 
 	private Node[] getConnectionNodes(Branch b1, Branch b2) {
@@ -97,26 +158,46 @@ public class Curcuit {
 
 	}
 
-	public boolean containsBranch(Branch b) {
-		return branches.contains(b);
+	public Node getFirst() {
+		return first;
 	}
 
-	public boolean containsNode(Node n) {
-		if (n.equals(first)) {
-			return false;
+	public Node getFromForBranch(Branch b) {
+		if (!containsBranch(b)) {
+			return null;
 		}
-		if (n.equals(last)) {
-			return false;
-		}
-		if (branches.size() == 1) {
-			return false;
-		}
-		for (Branch b : branches) {
-			if (b.getFrom().equals(n) || b.getTo().equals(n)) {
-				return true;
+		Iterator<Branch> itr = branches.iterator();
+		Node result = first;
+		while (itr.hasNext()) {
+			Branch next = itr.next();
+			if (next.equals(b)) {
+				break;
 			}
+			result = next.getFrom().equals(result) ? next.getTo() : next
+					.getFrom();
 		}
-		return false;
+		return result;
+	}
+
+	public double getI() {
+		internalFindCurrentSource();
+		return i;
+	}
+
+	public int getId() {
+		return id;
+	}
+
+	public Node getLast() {
+		return last;
+	}
+
+	public double getR() {
+		double r = 0;
+		for (Branch b : branches) {
+			r += b.getR();
+		}
+		return r;
 	}
 
 	public boolean hasConflicts() {
@@ -147,12 +228,8 @@ public class Curcuit {
 		return !allOk;
 	}
 
-	public boolean isCurcuit() {
-		return branches.size() >= 2 && last != null && last.equals(first);
-	}
-
-	public int getBranchCount() {
-		return branches.size();
+	public boolean hasCurrentSource() {
+		return internalFindCurrentSource();
 	}
 
 	@Override
@@ -160,29 +237,47 @@ public class Curcuit {
 		final int prime = 31;
 		int result = 1;
 		for (Branch b : branches) {
-			result = prime * result + ((b == null) ? 0 : b.hashCode());
+			result = prime * result + (b == null ? 0 : b.hashCode());
 		}
 		return result;
 	}
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		Curcuit other = (Curcuit) obj;
-		if (branches == null) {
-			if (other.branches != null)
-				return false;
-		} else if (!branches.containsAll(other.branches)) {
-			return false;
-		} else if (!other.branches.containsAll(branches)) {
-			return false;
+	private boolean internalFindCurrentSource() {
+		for (Branch b : branches) {
+			for (BaseElement e : b.getElements()) {
+				if (e instanceof CurrentSource) {
+					i = e.getI();
+					return true;
+				}
+			}
 		}
-		return true;
+		return false;
+	}
+
+	public boolean isCurcuit() {
+		return branches.size() >= 2 && last != null && last.equals(first);
+	}
+
+	public boolean isStraightBranch(Branch b) {
+		return b.getFrom().equals(getFromForBranch(b));
+	}
+
+	public void setI(double i) {
+		if (!hasCurrentSource()) {
+			this.i = i;
+		}
+	}
+
+	public void setId(int id) {
+		this.id = id;
+	}
+
+	public Curcuit switchDirection() {
+		Curcuit res = new Curcuit(model);
+		for (int i = branches.size() - 1; i >= 0; i--) {
+			res.addBranch(branches.get(i));
+		}
+		return res;
 	}
 
 	@Override
@@ -200,93 +295,5 @@ public class Curcuit {
 			sb.append(n.toString());
 		}
 		return sb.toString();
-	}
-
-	public double getR() {
-		double r = 0;
-		for (Branch b : branches) {
-			r += b.getR();
-		}
-		return r;
-	}
-
-	public double getI() {
-		internalFindCurrentSource();
-		return i;
-	}
-
-	public void setI(double i) {
-		if (!hasCurrentSource()) {
-			this.i = i;
-		}
-	}
-
-	public static double getMutualR(Curcuit src, Curcuit rel) {
-		double r = 0;
-		for (Branch b : src.getBranches()) {
-			if (rel.containsBranch(b)) {
-				Node srcB = src.getFromForBranch(b);
-				Node relB = rel.getFromForBranch(b);
-				if (srcB != null) {
-					boolean minus = !srcB.equals(relB);
-					r += (minus ? -1 : 1) * b.getR();
-				}
-			}
-		}
-		return r;
-	}
-	
-	public static int isSameDirectionOnCOmmonBranch(Curcuit c1, Curcuit c2){
-		for (Branch b : c1.getBranches()) {
-			if (c2.containsBranch(b)) {
-				return c2.isStraightBranch(b) && c1.isStraightBranch(b) ? 1 : -1;
-			}
-		}
-		return 0;
-	}
-
-	public Node getFromForBranch(Branch b) {
-		if (!containsBranch(b)) {
-			return null;
-		}
-		Iterator<Branch> itr = branches.iterator();
-		Node result = first;
-		while (itr.hasNext()) {
-			Branch next = itr.next();
-			if (next.equals(b)) {
-				break;
-			}
-			result = next.getFrom().equals(result) ? next.getTo() : next
-					.getFrom();
-		}
-		return result;
-	}
-
-	public boolean isStraightBranch(Branch b) {
-		return b.getFrom().equals(getFromForBranch(b));
-	}
-
-	public Curcuit switchDirection() {
-		Curcuit res = new Curcuit(model);
-		for (int i = branches.size() - 1; i >= 0; i--) {
-			res.addBranch(branches.get(i));
-		}
-		return res;
-	}
-
-	private boolean internalFindCurrentSource() {
-		for (Branch b : branches) {
-			for (BaseElement e : b.getElements()) {
-				if (e instanceof CurrentSource) {
-					i = e.getI();
-					return true;
-				}
-			}
-		}
-		return false;
-	}
-
-	public boolean hasCurrentSource() {
-		return internalFindCurrentSource();
 	}
 }

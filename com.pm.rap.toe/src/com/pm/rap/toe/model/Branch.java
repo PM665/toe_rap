@@ -9,7 +9,7 @@ public class Branch {
 	private Node from;
 	private Node to;
 
-	private double i;
+	private final ChainModel model;
 
 	private final Collection<BaseElement> elements;
 
@@ -17,15 +17,52 @@ public class Branch {
 		super();
 		this.from = from;
 		this.to = to;
-		this.elements = new LinkedList<BaseElement>();
+		elements = new LinkedList<BaseElement>();
+		model = from.getModel();
 	}
 
 	public boolean addElement(BaseElement e) {
 		return elements.add(e);
 	}
 
-	public boolean removeElement(BaseElement o) {
-		return elements.remove(o);
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null) {
+			return false;
+		}
+		if (getClass() != obj.getClass()) {
+			return false;
+		}
+		Branch other = (Branch) obj;
+		boolean opp = false;
+		if (id != other.id) {
+			return false;
+		}
+		if (from == null) {
+			if (other.from != null) {
+				return false;
+			}
+		} else if (!from.equals(other.from)) {
+			opp = from.equals(other.to);
+			if (!opp) {
+				return false;
+			}
+		}
+
+		if (to == null) {
+			if (other.to != null) {
+				return false;
+			}
+		} else if (!to.equals(other.to)) {
+			opp = opp && to.equals(other.from);
+			if (!opp) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 	public Collection<BaseElement> getElements() {
@@ -36,80 +73,12 @@ public class Branch {
 		return from;
 	}
 
-	public Node getTo() {
-		return to;
+	public double getI() {
+		return model.getI(this);
 	}
 
 	public int getId() {
 		return id;
-	}
-
-	public void setId(int id) {
-		this.id = id;
-	}
-
-	public double getI() {
-		return i;
-	}
-
-	public void setI(double i) {
-		this.i = i;
-	}
-
-	public void switchSides() {
-		Node tmp = from;
-		from = to;
-		to = tmp;
-	}
-
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((from == null) ? 0 : from.hashCode());
-		result = prime * result + id;
-		result = prime * result + ((to == null) ? 0 : to.hashCode());
-		return result;
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		Branch other = (Branch) obj;
-		boolean opp = false;
-		if (id != other.id)
-			return false;
-		if (from == null) {
-			if (other.from != null)
-				return false;
-		} else if (!from.equals(other.from)) {
-			opp = from.equals(other.to);
-			if (!opp) {
-				return false;
-			}
-		}
-
-		if (to == null) {
-			if (other.to != null)
-				return false;
-		} else if (!to.equals(other.to)) {
-			opp = opp && to.equals(other.from);
-			if (!opp) {
-				return false;
-			}
-		}
-		return true;
-	}
-
-	@Override
-	public String toString() {
-		return from.toString() + ":" + to.toString()
-				+ (id == 1 ? "" : "(" + id + ")");
 	}
 
 	public double getR() {
@@ -120,11 +89,45 @@ public class Branch {
 		return r;
 	}
 
+	public Node getTo() {
+		return to;
+	}
+
 	public double getU() {
 		double u = 0;
 		for (BaseElement e : elements) {
 			u += e.getU();
 		}
 		return u;
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + (from == null ? 0 : from.hashCode());
+		result = prime * result + id;
+		result = prime * result + (to == null ? 0 : to.hashCode());
+		return result;
+	}
+
+	public boolean removeElement(BaseElement o) {
+		return elements.remove(o);
+	}
+
+	public void setId(int id) {
+		this.id = id;
+	}
+
+	public void switchSides() {
+		Node tmp = from;
+		from = to;
+		to = tmp;
+	}
+
+	@Override
+	public String toString() {
+		return from.toString() + ":" + to.toString()
+				+ (id == 1 ? "" : "(" + id + ")");
 	}
 }

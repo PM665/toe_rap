@@ -3,23 +3,18 @@ package com.pm.rap.toe.model;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import com.pm.rap.toe.mkt.MktSolution;
+
 public class ChainModel {
 
 	private final Collection<Node> nodes;
 	private final Collection<Branch> branches;
-	private Collection<Curcuit> curcuitSet;
+	private final ArrayList<MktSolution> solutions = new ArrayList<MktSolution>();
+	private MktSolution activeSolution = null;
 
 	public ChainModel() {
 		nodes = new ArrayList<Node>();
 		branches = new ArrayList<Branch>();
-	}
-
-	public Collection<Node> getNodes() {
-		return nodes;
-	}
-
-	public Collection<Branch> getBranches() {
-		return branches;
 	}
 
 	public Branch addBranch(Branch branch) {
@@ -32,17 +27,40 @@ public class ChainModel {
 		return node;
 	}
 
-	public boolean removeBranch(Branch branch) {
-		return branches.remove(branch);
+	public void addSolution(MktSolution mktSolution) {
+		solutions.add(mktSolution);
 	}
 
-	public boolean removeNode(Node node) {
-		return nodes.remove(node);
+	private Branch checkConnected(Branch b) {
+		while (branches.contains(b)) {
+			b.setId(b.getId() + 1);
+		}
+		return b;
 	}
 
-	public boolean validateModel() {
-		// TODO
-		return true;
+	public void clearSolutions() {
+		activeSolution = null;
+		solutions.clear();
+	}
+
+	public MktSolution getActiveSolution() {
+		if (activeSolution == null) {
+			if (!solutions.isEmpty()) {
+				activeSolution = solutions.get(0);
+			} else {
+				throw new IllegalStateException(
+						"There are no solutions for the model");
+			}
+		}
+		return activeSolution;
+	}
+
+	public Collection<Branch> getBranches() {
+		return branches;
+	}
+
+	public double getI(Branch branch) {
+		return getActiveSolution().getIForBranch(branch);
 	}
 
 	public Collection<Branch> getNodeForBranch(Node n) {
@@ -55,18 +73,32 @@ public class ChainModel {
 		return list;
 	}
 
-	private Branch checkConnected(Branch b) {
-		while (branches.contains(b)) {
-			b.setId(b.getId() + 1);
-		}
-		return b;
+	public Collection<Node> getNodes() {
+		return nodes;
 	}
 
-	public Collection<Curcuit> getCurcuitSet() {
-		return curcuitSet;
+	public int getSolutionCount() {
+		return solutions.size();
 	}
 
-	public void setCurcuitSet(Collection<Curcuit> curcuitSet) {
-		this.curcuitSet = curcuitSet;
+	public Collection<MktSolution> getSolutions() {
+		return solutions;
+	}
+
+	public boolean removeBranch(Branch branch) {
+		return branches.remove(branch);
+	}
+
+	public boolean removeNode(Node node) {
+		return nodes.remove(node);
+	}
+
+	public void setActiveSolution(MktSolution solution) {
+		activeSolution = solution;
+	}
+
+	public boolean validateModel() {
+		// TODO
+		return true;
 	}
 }

@@ -1,53 +1,52 @@
 package com.pm.rap.toe.model;
 
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
+
 public abstract class BaseElement {
 
-	private double u = 0;
-	private double i = 0;
-	private double r = 0;
-
 	private Branch parent;
+	private final String name;
 
 	public BaseElement(Branch branch) {
-		this.parent = branch;
+		this(branch, "");
+	}
+
+	public BaseElement(Branch branch, String name) {
+		parent = branch;
 		parent.addElement(this);
-	}
-
-	protected BaseElement(BaseElement e, Branch branch) {
-		this(branch);
-		this.u = e.u;
-		this.i = e.i;
-		this.r = e.r;
-	}
-
-	public double getU() {
-		return u;
-	}
-
-	public void setU(double u) {
-		this.u = u;
+		this.name = name;
 	}
 
 	public double getI() {
-		return i;
+		throw new NotImplementedException();
 	}
 
-	public void setI(double i) {
-		this.i = i;
-	}
-
-	public double getR() {
-		return r;
-	}
-
-	public void setR(double r) {
-		this.r = r;
+	public String getName() {
+		return name;
 	}
 
 	public Branch getParent() {
 		return parent;
 	}
-	
-	public abstract BaseElement clone(Branch newParent);
+
+	public double getR() {
+		throw new NotImplementedException();
+	}
+
+	public double getU() {
+		throw new NotImplementedException();
+	}
+
+	public void setI(double i) {
+		throw new NotImplementedException();
+	}
+
+	public void setR(double r) {
+		throw new NotImplementedException();
+	}
+
+	public void setU(double u) {
+		throw new NotImplementedException();
+	}
 
 }

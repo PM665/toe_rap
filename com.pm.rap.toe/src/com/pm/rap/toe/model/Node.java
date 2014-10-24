@@ -3,9 +3,15 @@ package com.pm.rap.toe.model;
 public class Node {
 
 	public int id;
+	private final ChainModel model;
 
-	public Node() {
-		// TODO Auto-generated constructor stub
+	public Node(ChainModel model) {
+		this.model = model;
+		model.addNode(this);
+	}
+
+	public ChainModel getModel() {
+		return model;
 	}
 
 	@Override
