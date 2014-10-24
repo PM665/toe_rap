@@ -17,10 +17,6 @@ public class CurrentFinder {
 		this.model = model;
 	}
 
-	public ChainModel getModel() {
-		return model;
-	}
-
 	public ChainModel solve(Collection<Curcuit> curcuits) {
 
 		System.out.println(curcuits);
@@ -68,6 +64,7 @@ public class CurrentFinder {
 		}
 		ChainModel newModel = new ChainModel();
 		newModel.getNodes().addAll(model.getNodes());
+		newModel.setCurcuitSet(curcuits);
 		for (Branch b : model.getBranches()) {
 			Branch nb = newModel.addBranch(new Branch(b.getFrom(), b.getTo()));
 			double nI = 0;
@@ -76,7 +73,6 @@ public class CurrentFinder {
 			}
 			nb.setI(nI);
 			nb.setId(nb.getId());
-			//XXX
 			for (BaseElement e : b.getElements()){
 				e.clone(nb);
 			}

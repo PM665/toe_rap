@@ -7,6 +7,7 @@ public class ChainModel {
 
 	private final Collection<Node> nodes;
 	private final Collection<Branch> branches;
+	private Collection<Curcuit> curcuitSet;
 
 	public ChainModel() {
 		nodes = new ArrayList<Node>();
@@ -59,5 +60,13 @@ public class ChainModel {
 			b.setId(b.getId() + 1);
 		}
 		return b;
+	}
+
+	public Collection<Curcuit> getCurcuitSet() {
+		return curcuitSet;
+	}
+
+	public void setCurcuitSet(Collection<Curcuit> curcuitSet) {
+		this.curcuitSet = curcuitSet;
 	}
 }
