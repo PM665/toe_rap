@@ -28,23 +28,28 @@ public class CurrentFinder {
 		for (int i = 0; i < count; i++) {
 			Curcuit curcuit = array[i];
 			boolean hasCurSrc = curcuit.hasCurrentSource();
-			double cI = -curcuit.getI();
+			double cI = curcuit.getI();
 			double cR = curcuit.getR();
 			for (int j = i + 1; j < count; j++) {
 				double r;
 				Curcuit otherC = array[j];
 				r = Curcuit.getMutualR(curcuit, otherC);
 				boolean hasCurSrc2 = otherC.hasCurrentSource();
-				double c2I = Curcuit.isSameDirectionOnCOmmonBranch(curcuit,
+				double c2I = Curcuit.isSameDirectionOnCommonBranch(curcuit,
 						otherC) * otherC.getI();
-				if (!hasCurSrc && !hasCurSrc2) {
-					matrix[i][j] = r;
-					matrix[j][i] = r;
-				} else {
+				if (hasCurSrc) {
 					matrix[i][j] = 0;
-					matrix[j][i] = 0;
-					matrix[i][count] += cR * cI;
-					matrix[j][count] += r * c2I;
+					// matrix[j][count] += r * c2I;
+				} else {
+					if (hasCurSrc2) {
+						// matrix[i][j] = 0;
+						matrix[j][i] = 0;
+						// matrix[i][count] += cR * cI;
+					} else {
+						matrix[j][i] = r;
+					}
+					matrix[i][j] = r;
+
 				}
 			}
 			if (!hasCurSrc) {
@@ -54,7 +59,8 @@ public class CurrentFinder {
 					matrix[i][count] += (minus ? -1 : 1) * b.getU();
 				}
 			} else {
-				matrix[i][i] = 0;
+				matrix[i][i] = 1;
+				matrix[i][count] = cI;
 			}
 		}
 		double[] result = GaussSolver.solve(matrix);
