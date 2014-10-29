@@ -35,8 +35,8 @@ public class CurrentFinder {
 				Curcuit otherC = array[j];
 				r = Curcuit.getMutualR(curcuit, otherC);
 				boolean hasCurSrc2 = otherC.hasCurrentSource();
-				double c2I = Curcuit.isSameDirectionOnCommonBranch(curcuit,
-						otherC) * otherC.getI();
+				// double c2I = Curcuit.isSameDirectionOnCommonBranch(curcuit,
+				// otherC) * otherC.getI();
 				if (hasCurSrc) {
 					matrix[i][j] = 0;
 					// matrix[j][count] += r * c2I;
